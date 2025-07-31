@@ -11,13 +11,13 @@
 ---
 
 ## 📸 Screenshots
+<img width="200" height="707" alt="Screenshot_20250731_190154" src="https://github.com/user-attachments/assets/dac6df8b-411e-4224-acc3-dd8fecf961b1" /> &nbsp;&nbsp;&nbsp;
+<img width="200" height="707" alt="Screenshot_20250731_190250" src="https://github.com/user-attachments/assets/308fc93d-3c49-49a6-a43b-faac96067628" />&nbsp;&nbsp;&nbsp;
+<img width="200" height="707" alt="Screenshot_20250731_190258" src="https://github.com/user-attachments/assets/cd7fa01e-0fea-4152-ae6d-15c102fc6ae3" />&nbsp;&nbsp;&nbsp;
+<img width="200" height="707" alt="Screenshot_20250731_190306" src="https://github.com/user-attachments/assets/525278b5-8f03-4fb6-bbf4-88444af3da83" />&nbsp;&nbsp;&nbsp;
+<img width="200" height="707" alt="Screenshot_20250731_190352" src="https://github.com/user-attachments/assets/d21cdb3a-0ac0-472c-8eab-d1e029a33b30" />&nbsp;&nbsp;&nbsp;
+<img width="200" height="707" alt="Screenshot_20250731_190356" src="https://github.com/user-attachments/assets/35cb764f-b9d6-4cec-a9d9-fee574641748" />
 
-<img width="200" height="707" alt="Screenshot 2025-07-31 at 6 56 04 PM" src="https://github.com/user-attachments/assets/e275e011-dd00-4a31-a584-1ffb55952e03" /> &nbsp;&nbsp;&nbsp;
-<img width="200" height="707" alt="Screenshot 2025-07-31 at 6 56 17 PM" src="https://github.com/user-attachments/assets/3621ef75-0aba-445b-9a8e-5b70d57297bf" /> &nbsp;&nbsp;&nbsp;
-<img width="200" height="707" alt="Screenshot 2025-07-31 at 6 56 23 PM" src="https://github.com/user-attachments/assets/9ee2af3a-3224-497a-ba37-33ff5b1dbb36" /> &nbsp;&nbsp;&nbsp;
-<img width="200" height="707" alt="Screenshot 2025-07-31 at 6 56 46 PM" src="https://github.com/user-attachments/assets/0eb9989c-8528-4ba6-9266-8b48a7aa3b1b" /> &nbsp;&nbsp;&nbsp;
-<img width="200" height="707" alt="Screenshot 2025-07-31 at 6 56 33 PM" src="https://github.com/user-attachments/assets/0e2b076f-0195-44b9-8e90-ddb9eb751680" /> &nbsp;&nbsp;&nbsp;
-<img width="200" height="707" alt="Screenshot 2025-07-31 at 6 56 30 PM" src="https://github.com/user-attachments/assets/caa03184-60cd-43a9-870c-3aa4535a056c" />
 
 
 
