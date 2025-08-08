@@ -289,8 +289,3 @@ fun ExpenseDropDown(listOfItems: List<String>, onItemSelected: (item: String) ->
 
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewAddExpense() {
-    AddExpense(rememberNavController())
-}
