@@ -28,6 +28,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -44,6 +45,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow // IMPORT THIS
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -78,13 +80,13 @@ fun HomeScreen(navController: NavController) {
                 })
             Box(
                 modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 30.dp, start = 16.dp, end = 16.dp)
-                .constrainAs(nameRow) {
-                top.linkTo(parent.top)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-            }) {
+                    .fillMaxWidth()
+                    .padding(top = 30.dp, start = 16.dp, end = 16.dp)
+                    .constrainAs(nameRow) {
+                        top.linkTo(parent.top)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }) {
                 ExpenseTextView(
                     text = "Fund Trackr",
                     fontSize = 26.sp,
@@ -97,11 +99,6 @@ fun HomeScreen(navController: NavController) {
                     Spacer(modifier = Modifier.height(44.dp))
                     GreetingText()
                 }
-//                Image(
-//                    painter = painterResource(R.drawable.ic_notification),
-//                    contentDescription = null,
-//                    modifier = Modifier.align(Alignment.CenterEnd)
-//                )
             }
 
             val state = viewModel.expenses.collectAsState(initial = emptyList())
@@ -123,7 +120,6 @@ fun HomeScreen(navController: NavController) {
                 height = Dimension.fillToConstraints
             }, list = state.value, viewModel, navController)
 
-            // Place the add button at the bottom, after TranscationList
             FloatingActionButton(
                 onClick = { navController.navigate(ExtraRoutes.ADD_EXPENSE) },
                 modifier = Modifier
@@ -132,9 +128,9 @@ fun HomeScreen(navController: NavController) {
                         end.linkTo(parent.end, margin = 16.dp)
                     }
                     .navigationBarsPadding(),
-                containerColor = Color(0xFF009688),  // A nice teal color
+                containerColor = Color(0xFF009688),
                 contentColor = Color.White,
-                shape = RoundedCornerShape(50), // Circular shape
+                shape = RoundedCornerShape(50),
                 elevation = FloatingActionButtonDefaults.elevation(8.dp)
             ) {
                 Icon(
@@ -163,11 +159,6 @@ fun CardItem(modifier: Modifier, expense: String, income: String, balance: Strin
                 ExpenseTextView(text = "Total Balance", fontSize = 16.sp, color = Color.White)
                 ExpenseTextView(text = balance, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White)
             }
-//            Image(
-//                painter = painterResource(R.drawable.dots_menu),
-//                contentDescription = null,
-//                modifier = Modifier.align(Alignment.CenterEnd)
-//            )
         }
 
         Box(
@@ -257,7 +248,7 @@ fun TranscationList(
 @Composable
 fun TransactionItem(
     title: String,
-    amountDisplay: String,        // e.g. +₹123.00 / -₹45.99
+    amountDisplay: String,
     image: ImageVector,
     date: String,
     amountColor: Color,
@@ -269,40 +260,44 @@ fun TransactionItem(
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
 
-    Box(
+    Row( // <--- Changed from Box to Row
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .clickable { onRowClick() }
+            .clickable { onRowClick() },
+        verticalAlignment = Alignment.CenterVertically // Align items vertically
     ) {
         // Left: icon, title, date
-        Row( verticalAlignment = Alignment.CenterVertically ) {
-            Icon(
-                imageVector = image,
-                contentDescription = title,
-                modifier = Modifier.size(34.dp),
-                tint = Color.Unspecified
+        Icon(
+            imageVector = image,
+            contentDescription = title,
+            modifier = Modifier.size(34.dp),
+            tint = MaterialTheme.colorScheme.onSurface,
+        )
+        Spacer(Modifier.size(8.dp))
+        Column(
+            modifier = Modifier
+                .weight(1f) // <--- Give column weight so it takes available space
+                .padding(end = 8.dp) // <--- Add padding to separate from amount
+        ) {
+            ExpenseTextView(
+                text = title,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1, // <--- Limit title to one line
+                overflow = TextOverflow.Ellipsis // <--- Add ellipsis for overflow
             )
-            Spacer(Modifier.size(8.dp))
-            Column {
-                ExpenseTextView(
-                    text = title,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
-                )
-                Spacer(Modifier.size(3.dp))
-                ExpenseTextView(
-                    text = date,
-                    fontSize = 12.sp,
-                    color = Color.Gray
-                )
-            }
+            Spacer(Modifier.size(3.dp))
+            ExpenseTextView(
+                text = date,
+                fontSize = 12.sp,
+                color = Color.Gray
+            )
         }
 
         // Right: amount + menu
         Row(
-            modifier = Modifier.align(Alignment.CenterEnd),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically // Ensure amount and menu are aligned
         ) {
             ExpenseTextView(
                 text = amountDisplay,

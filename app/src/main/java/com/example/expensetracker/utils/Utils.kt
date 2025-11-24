@@ -13,4 +13,10 @@ object Utils {
     fun formatToDecimalValue(d: Double): String {
         return String.format("%.2f", d)
     }
+
+    fun String.isNumericOrEmpty(): Boolean {
+        if (this.isEmpty()) return true
+        return this.matches(Regex("-?\\d*(\\.\\d+)?"))
+    }
+
 }
