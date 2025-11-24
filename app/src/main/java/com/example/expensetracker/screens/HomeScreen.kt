@@ -260,14 +260,14 @@ fun TransactionItem(
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
 
-    Row( // <--- Changed from Box to Row
+    Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .clickable { onRowClick() },
-        verticalAlignment = Alignment.CenterVertically // Align items vertically
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        // Left: icon, title, date
+
         Icon(
             imageVector = image,
             contentDescription = title,
@@ -277,15 +277,15 @@ fun TransactionItem(
         Spacer(Modifier.size(8.dp))
         Column(
             modifier = Modifier
-                .weight(1f) // <--- Give column weight so it takes available space
-                .padding(end = 8.dp) // <--- Add padding to separate from amount
+                .weight(1f)
+                .padding(end = 8.dp)
         ) {
             ExpenseTextView(
                 text = title,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
-                maxLines = 1, // <--- Limit title to one line
-                overflow = TextOverflow.Ellipsis // <--- Add ellipsis for overflow
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
             Spacer(Modifier.size(3.dp))
             ExpenseTextView(
@@ -295,9 +295,8 @@ fun TransactionItem(
             )
         }
 
-        // Right: amount + menu
         Row(
-            verticalAlignment = Alignment.CenterVertically // Ensure amount and menu are aligned
+            verticalAlignment = Alignment.CenterVertically
         ) {
             ExpenseTextView(
                 text = amountDisplay,
