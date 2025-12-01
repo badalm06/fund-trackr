@@ -68,8 +68,8 @@ fun SettingsScreen(navController: NavController) {
                 SettingsHeader(title = "Data & Security")
                 SettingItem(
                     icon = Icons.AutoMirrored.Filled.ExitToApp,
-                    title = "Export Data (CSV)",
-                    description = "Save all transactions to a CSV file.",
+                    title = "Export Data (CSV/PDF)",
+                    description = "Save all transactions to a CSV/PDF file.",
                     onClick = { navController.navigate(SettingRoutes.EXPORT_DATA) }
                 )
                 Divider(modifier = Modifier.padding(horizontal = 16.dp))

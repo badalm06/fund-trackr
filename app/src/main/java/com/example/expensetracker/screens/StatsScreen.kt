@@ -68,7 +68,7 @@ fun StatsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 12.dp)
+            .padding(top = 40.dp)
     ) {
 
         // Top Summary Row
