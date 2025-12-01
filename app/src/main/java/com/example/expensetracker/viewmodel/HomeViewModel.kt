@@ -48,10 +48,21 @@ import com.example.expensetracker.data.model.ExpenseEntity
 import com.example.expensetracker.R
 import com.example.expensetracker.utils.Utils
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.StateFlow // ADDED
+import kotlinx.coroutines.flow.SharingStarted // ADDED
+import kotlinx.coroutines.flow.stateIn // ADDED
+import java.text.SimpleDateFormat // ADDED
+import java.util.Date // ADDED
+import java.util.Locale // ADDED
 
 
 class HomeViewModel(private val dao: ExpenseDao): ViewModel() {
-    val expenses = dao.getAllExpenses()
+    // MODIFIED: Convert standard Flow to StateFlow to allow synchronous access via .value for export
+    val expenses: StateFlow<List<ExpenseEntity>> = dao.getAllExpenses().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
 
     fun addExpense(expense: ExpenseEntity) = viewModelScope.launch {
         dao.insertExpense(expense)
@@ -96,10 +107,45 @@ class HomeViewModel(private val dao: ExpenseDao): ViewModel() {
         }
         return "₹ ${Utils.formatToDecimalValue(totalIncome)}"
     }
+
     fun getItemIcon(item: ExpenseEntity) = CategoryCatalog.iconFor(item.category)
 
     /** Provide list of all known categories (for dropdowns). */
     fun getAllCategories(): List<String> = CategoryCatalog.allCategories
+
+    // ----------------------------------------------------
+    // START: Export Data Functions
+    // ----------------------------------------------------
+
+    /**
+     * Retrieves the current, latest snapshot of all expenses for the export process.
+     */
+    fun getExpenseSnapshot(): List<ExpenseEntity> {
+        // Access the current value of the StateFlow
+        return expenses.value
+    }
+
+    /**
+     * Converts a list of ExpenseEntity into a CSV formatted string.
+     * @param expenses The list of data to format.
+     * @return A String ready to be written to a .csv file.
+     */
+    fun formatDataAsCsv(expenses: List<ExpenseEntity>): String {
+        val header = "ID,Title,Amount,Date,Category,Type\n"
+        val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+        val dataRows = expenses.joinToString("\n") { item ->
+            val dateString = dateFormatter.format(Date(item.data))
+
+            // Escape double quotes to ensure fields containing quotes/commas don't break CSV structure
+            val titleSafe = "\"${item.title.replace("\"", "\"\"")}\""
+            val categorySafe = "\"${item.category.replace("\"", "\"\"")}\""
+
+            "${item.id},${titleSafe},${item.amount},${dateString},${categorySafe},${item.type}"
+        }
+
+        return header + dataRows
+    }
 }
 
 class HomeViewModelFactory(private val context: Context): ViewModelProvider.Factory {

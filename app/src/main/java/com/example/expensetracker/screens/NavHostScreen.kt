@@ -1,5 +1,6 @@
 package com.example.expensetracker.screens // Your existing package
 
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -23,17 +24,17 @@ import com.example.expensetracker.viewmodel.HomeViewModelFactory // Your HomeVie
 object ExtraRoutes {
     const val ADD_EXPENSE = "addExpense"
     const val ALL_TRANSACTIONS = "all_transactions_screen" // Define the route for AllTransactionsScreen
+
+    const val SETTINGS_SCREEN = "settings_screen" // <-- NEW ROUTE
 }
 
 @Composable
 fun NavHostScreen() {
     val navController = rememberNavController()
-    val context = LocalContext.current // Get the current context
+    val context = LocalContext.current
 
-    // Properly instantiate HomeViewModel using the viewModel() helper and your factory
     val homeViewModel: HomeViewModel = viewModel(factory = HomeViewModelFactory(context))
 
-    // Observe current route reactively for BottomBar visibility
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -46,29 +47,47 @@ fun NavHostScreen() {
             ) {
                 BottomBar(navController)
             }
-        }
+        },
+        // --- FIX: Disable default Scaffold padding/insets to prevent Status Bar conflict ---
+        contentWindowInsets = WindowInsets(0)
     ) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = BottomNavItem.Home.route,
-            modifier = Modifier.padding(innerPadding)
+            // --- FIX: Apply ONLY the bottom padding to the NavHost ---
+            modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
         ) {
+            // --- Bottom Navigation Routes ---
             composable(BottomNavItem.Home.route) {
-                // Pass the HomeViewModel to HomeScreen
                 HomeScreen(navController)
             }
             composable(BottomNavItem.Stats.route) {
-                // If Stats needs HomeViewModel, pass it here too
                 StatsScreen()
             }
+
+            // --- Extra Routes (Accessed via Home/Add Button) ---
             composable(ExtraRoutes.ADD_EXPENSE) {
-                // Pass the HomeViewModel to AddExpense if it needs to interact with it
                 AddExpense(navController)
             }
             composable(ExtraRoutes.ALL_TRANSACTIONS) {
-                // Define the route for AllTransactionsScreen and pass the HomeViewModel
                 AllTransactionsScreen(navController, homeViewModel)
             }
+
+            // --- Settings Menu Routes ---
+            composable(ExtraRoutes.SETTINGS_SCREEN) {
+                SettingsScreen(navController)
+            }
+            composable(SettingRoutes.ABOUT_APP) {
+                AboutScreen(navController)
+            }
+            composable(SettingRoutes.PRIVACY_POLICY) {
+                PrivacyPolicyScreen(navController)
+            }
+            composable(SettingRoutes.EXPORT_DATA) {
+                ExportDataScreen(navController)
+            }
+
+            // --- Detailed/Edit Routes ---
             composable("edit_expense/{id}") { backStackEntry ->
                 val id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: return@composable
                 EditExpenseScreen(
@@ -77,8 +96,6 @@ fun NavHostScreen() {
                     expenseId = id
                 )
             }
-
-
         }
     }
 }

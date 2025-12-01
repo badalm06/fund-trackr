@@ -1,6 +1,5 @@
 package com.example.expensetracker.screens
 
-import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Settings // Import Settings Icon
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -45,7 +46,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow // IMPORT THIS
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -62,6 +63,7 @@ import com.example.expensetracker.viewmodel.HomeViewModel
 import com.example.expensetracker.viewmodel.HomeViewModelFactory
 import com.example.expensetracker.widget.ExpenseTextView
 import java.util.Calendar
+
 
 @Composable
 fun HomeScreen(navController: NavController) {
@@ -81,7 +83,7 @@ fun HomeScreen(navController: NavController) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 30.dp, start = 16.dp, end = 16.dp)
+                    .padding(top = 40.dp, start = 16.dp, end = 16.dp)
                     .constrainAs(nameRow) {
                         top.linkTo(parent.top)
                         start.linkTo(parent.start)
@@ -95,6 +97,23 @@ fun HomeScreen(navController: NavController) {
                     color = Color.White,
                     modifier = Modifier.align(Alignment.TopCenter)
                 )
+
+                // --- START: Settings Icon ---
+                IconButton(
+                    onClick = { navController.navigate(ExtraRoutes.SETTINGS_SCREEN) },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd) // Align to the top right of the Box
+                        .padding(top = 4.dp) // Small adjustment down from the very top
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Settings,
+                        contentDescription = "Settings",
+                        tint = Color.White, // Icon color
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+                // --- END: Settings Icon ---
+
                 Column {
                     Spacer(modifier = Modifier.height(44.dp))
                     GreetingText()
@@ -141,7 +160,8 @@ fun HomeScreen(navController: NavController) {
         }
     }
 }
-
+// ... (The rest of your code: CardItem, RowCardItem, TranscationList, TransactionItem, GreetingText)
+// ... (These remain unchanged)
 
 @Composable
 fun CardItem(modifier: Modifier, expense: String, income: String, balance: String) {
