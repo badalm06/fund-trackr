@@ -48,12 +48,21 @@ import com.example.expensetracker.data.model.ExpenseEntity
 import com.example.expensetracker.R
 import com.example.expensetracker.utils.Utils
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.StateFlow // ADDED
-import kotlinx.coroutines.flow.SharingStarted // ADDED
-import kotlinx.coroutines.flow.stateIn // ADDED
-import java.text.SimpleDateFormat // ADDED
-import java.util.Date // ADDED
-import java.util.Locale // ADDED
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+// --- IMPORTS FOR PDF GENERATION ---
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Typeface
+import android.graphics.pdf.PdfDocument
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+// ----------------------------------
 
 
 class HomeViewModel(private val dao: ExpenseDao): ViewModel() {
@@ -146,6 +155,101 @@ class HomeViewModel(private val dao: ExpenseDao): ViewModel() {
 
         return header + dataRows
     }
+
+    /**
+     * Generates the PDF file content from the expense data using Android's PdfDocument API.
+     * @return The complete PdfDocument object.
+     */
+    fun generatePdf(expenses: List<ExpenseEntity>): PdfDocument {
+        val pdfDocument = PdfDocument()
+        val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+        // Define page setup (A4 size approximation at 72dpi: 595x842 points)
+        val pageWidth = 595
+        val pageHeight = 842
+        val margin = 40f
+        var yPosition = 50f
+        val lineSpacing = 20f
+
+        // Initialize first page
+        var pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
+        var page = pdfDocument.startPage(pageInfo)
+        var canvas = page.canvas
+        val paint = Paint()
+
+        // --- Header and Title ---
+        paint.color = Color.Black.toArgb()
+        paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        paint.textSize = 18f
+        canvas.drawText("FundTrackr Expense Report", margin, yPosition, paint)
+        yPosition += 30f
+
+        // --- Column Headers ---
+        paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        paint.textSize = 10f
+        val xPositions = floatArrayOf(margin, margin + 80f, margin + 200f, margin + 300f, margin + 400f)
+
+        canvas.drawText("Date", xPositions[0], yPosition, paint)
+        canvas.drawText("Category", xPositions[1], yPosition, paint)
+        canvas.drawText("Title", xPositions[2], yPosition, paint)
+        canvas.drawText("Amount", xPositions[3], yPosition, paint)
+        canvas.drawText("Type", xPositions[4], yPosition, paint)
+
+        yPosition += 5f
+        canvas.drawLine(margin, yPosition, pageWidth - margin, yPosition, paint)
+        yPosition += lineSpacing
+
+        // --- Data Rows ---
+        paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+        paint.textSize = 9f
+        var pageNumber = 1
+
+        for (item in expenses) {
+            // Check for new page if close to bottom
+            if (yPosition > pageHeight - margin) {
+                pdfDocument.finishPage(page)
+                pageNumber++
+                pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+                page = pdfDocument.startPage(pageInfo)
+                canvas = page.canvas
+                yPosition = margin // Reset Y position
+
+                // Redraw header on new page (optional)
+                paint.color = Color.Black.toArgb()
+                paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                paint.textSize = 10f
+                canvas.drawText("Date", xPositions[0], yPosition, paint)
+                canvas.drawText("Category", xPositions[1], yPosition, paint)
+                canvas.drawText("Title", xPositions[2], yPosition, paint)
+                canvas.drawText("Amount", xPositions[3], yPosition, paint)
+                canvas.drawText("Type", xPositions[4], yPosition, paint)
+                yPosition += 5f
+                canvas.drawLine(margin, yPosition, pageWidth - margin, yPosition, paint)
+                yPosition += lineSpacing
+                paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+                paint.textSize = 9f
+            }
+
+            // Set text color based on Income/Expense
+            paint.color = if (item.type == "Income") Color.Green.toArgb() else Color.Red.toArgb()
+
+            // Draw columns
+            canvas.drawText(dateFormatter.format(Date(item.data)), xPositions[0], yPosition, paint)
+            canvas.drawText(item.category, xPositions[1], yPosition, paint)
+            canvas.drawText(item.title, xPositions[2], yPosition, paint)
+            canvas.drawText("₹ ${Utils.formatToDecimalValue(item.amount)}", xPositions[3], yPosition, paint)
+            canvas.drawText(item.type, xPositions[4], yPosition, paint)
+
+            yPosition += lineSpacing
+        }
+
+        // Finish the final page
+        pdfDocument.finishPage(page)
+        return pdfDocument
+    }
+    // ----------------------------------------------------
+    // END: Export Data Functions
+    // ----------------------------------------------------
 }
 
 class HomeViewModelFactory(private val context: Context): ViewModelProvider.Factory {

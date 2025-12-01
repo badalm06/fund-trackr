@@ -1,5 +1,6 @@
 package com.example.expensetracker.screens
 
+import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
@@ -7,7 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material3.*
-import androidx.compose.runtime.* // Import all needed runtime composables
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -15,16 +16,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import androidx.lifecycle.viewmodel.compose.viewModel // Import for viewModel() function
-
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.expensetracker.viewmodel.HomeViewModel
 import com.example.expensetracker.viewmodel.HomeViewModelFactory
 import com.example.expensetracker.widget.ExpenseTextView
-
-// Global variables imported from MainActivity.kt
 import com.example.expensetracker.exportLauncher
+// --- IMPORTANT: Import all global variables for communication ---
 import com.example.expensetracker.csvDataToExport
-
+import com.example.expensetracker.pdfDocumentToExport
+import com.example.expensetracker.currentExportFormat
+// ---
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -35,17 +36,48 @@ import androidx.compose.ui.tooling.preview.Preview
 fun ExportDataScreen(navController: NavController) {
     val context = LocalContext.current
 
-    // Instantiate ViewModel locally using the Factory
     val viewModel: HomeViewModel = remember {
         HomeViewModelFactory(context).create(HomeViewModel::class.java)
     }
 
-    // --- CRUCIAL FIX: Collect the StateFlow as Compose State ---
-    // This makes the screen recompose whenever the underlying expense data changes.
+    // Collect the StateFlow as Compose State for reactive updates
     val expenses by viewModel.expenses.collectAsState(initial = emptyList())
-    // ---
 
-    var isExporting by remember { mutableStateOf(false) }
+    // --- Local function to handle data preparation and intent launch ---
+    fun triggerExport(format: String) {
+        if (expenses.isEmpty()) {
+            Toast.makeText(context, "No data to export.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Set the global format variable for MainActivity to read
+        currentExportFormat = format
+
+        val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+
+        val (mimeType, fileExtension) = when (format) {
+            "csv" -> {
+                csvDataToExport = viewModel.formatDataAsCsv(expenses)
+                Pair("text/csv", "csv")
+            }
+            "pdf" -> {
+                pdfDocumentToExport = viewModel.generatePdf(expenses)
+                Pair("application/pdf", "pdf")
+            }
+            else -> return // Should not happen
+        }
+
+        val fileName = "FundTrackr_Export_$timestamp.$fileExtension"
+
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = mimeType
+            putExtra(Intent.EXTRA_TITLE, fileName)
+        }
+
+        exportLauncher.launch(intent)
+    }
+    // --- End of trigger function ---
 
     Scaffold(
         topBar = {
@@ -75,41 +107,32 @@ fun ExportDataScreen(navController: NavController) {
             )
             Spacer(Modifier.height(16.dp))
 
-            // Display the size of the reactive list
             ExpenseTextView(
-                text = "Save all transaction history to a CSV file. (${expenses.size} records found)",
+                text = "Choose format to export (${expenses.size} records found)",
                 fontSize = 16.sp
             )
             Spacer(Modifier.height(32.dp))
 
+            // --- CSV BUTTON ---
             Button(
-                onClick = {
-                    if (expenses.isEmpty()) {
-                        Toast.makeText(context, "No data to export.", Toast.LENGTH_SHORT).show()
-                        return@Button
-                    }
-                    // 1. Format the data into a CSV string and store it globally
-                    // Use the reactive 'expenses' list here
-                    csvDataToExport = viewModel.formatDataAsCsv(expenses)
-
-                    // 2. Create the ACTION_CREATE_DOCUMENT intent
-                    val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-                    val fileName = "FundTrackr_Export_$timestamp.csv"
-
-                    val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                        addCategory(Intent.CATEGORY_OPENABLE)
-                        type = "text/csv"
-                        putExtra(Intent.EXTRA_TITLE, fileName)
-                    }
-
-                    // 3. Launch the system save dialogue via the global launcher
-                    exportLauncher.launch(intent)
-                },
-                enabled = expenses.isNotEmpty(), // Button is enabled only if data is present
-                modifier = Modifier.fillMaxWidth()
+                onClick = { triggerExport("csv") },
+                enabled = expenses.isNotEmpty(),
+                modifier = Modifier.fillMaxWidth().height(50.dp)
             ) {
-                ExpenseTextView(text = "Export Data (CSV)")
+                ExpenseTextView(text = "Export as CSV (Spreadsheet)")
             }
+
+            Spacer(Modifier.height(12.dp))
+
+            // --- PDF BUTTON ---
+            Button(
+                onClick = { triggerExport("pdf") },
+                enabled = expenses.isNotEmpty(),
+                modifier = Modifier.fillMaxWidth().height(50.dp)
+            ) {
+                ExpenseTextView(text = "Export as PDF (Document Report)")
+            }
+
 
             Spacer(Modifier.height(16.dp))
             ExpenseTextView(

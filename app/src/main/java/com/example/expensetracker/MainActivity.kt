@@ -9,34 +9,44 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Surface
-import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.expensetracker.screens.NavHostScreen
 import com.example.expensetracker.ui.theme.ExpenseTrackerTheme
 import java.io.OutputStreamWriter
-import java.io.FileDescriptor
-import java.io.PrintWriter
+import android.graphics.pdf.PdfDocument // Import for PDF handling
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
+import com.example.expensetracker.R // Ensure R is imported
 
-// --- 1. Global Variables for Communication (Needed by ExportDataScreen) ---
+// --- 1. Global Variables for Communication ---
 // These must be defined outside the class scope.
 lateinit var exportLauncher: ActivityResultLauncher<Intent>
+// Global holders for the two distinct output formats
 lateinit var csvDataToExport: String
+lateinit var pdfDocumentToExport: PdfDocument // Holder for the generated PDF object
+lateinit var currentExportFormat: String // "csv" or "pdf" (NEW)
+
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
 
-        // --- 2. Initialize the ActivityResultLauncher (Must be before super.onCreate) ---
+        // --- 2. Initialize the ActivityResultLauncher ---
         exportLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
             // --- 4. Handle the result (the URI) ---
             if (result.resultCode == RESULT_OK) {
                 result.data?.data?.let { uri ->
-                    writeCsvToUri(uri)
+                    if (::currentExportFormat.isInitialized) {
+                        // Call the appropriate writer based on the type requested by the Composable
+                        when (currentExportFormat) {
+                            "csv" -> writeCsvToUri(uri)
+                            "pdf" -> writePdfToUri(uri)
+                            else -> Toast.makeText(this, "Unknown file format selected.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 }
             } else {
                 Toast.makeText(this, "Export cancelled or failed.", Toast.LENGTH_SHORT).show()
@@ -46,12 +56,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // Setting condition for splash screen transition
         splashScreen.setKeepOnScreenCondition { false }
 
         setContent {
             ExpenseTrackerTheme {
-                Surface(modifier = Modifier.fillMaxSize()) {
+                Surface(modifier = androidx.compose.ui.Modifier.fillMaxSize()) {
                     NavHostScreen()
                 }
             }
@@ -59,21 +68,35 @@ class MainActivity : ComponentActivity() {
     }
 
     /**
-     * Writes the globally held CSV data (csvDataToExport) to the file URI chosen by the user.
-     * This function executes AFTER the user selects a save location in the system dialog.
+     * Writes the globally held CSV data to the file URI chosen by the user.
      */
     private fun writeCsvToUri(uri: Uri) {
         try {
             contentResolver.openOutputStream(uri)?.use { outputStream ->
-                // Using OutputStreamWriter and PrintWriter for efficient text writing
                 OutputStreamWriter(outputStream).use { writer ->
                     writer.write(csvDataToExport)
                 }
             }
-            Toast.makeText(this, "Success! Data exported to chosen location.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Success! Data exported as CSV.", Toast.LENGTH_LONG).show()
         } catch (e: Exception) {
             Toast.makeText(this, "Error writing file: ${e.message}", Toast.LENGTH_LONG).show()
             e.printStackTrace()
         }
     }
-}
+
+    /**
+     * Writes the globally held PDF document to the file URI chosen by the user.
+     */
+    private fun writePdfToUri(uri: Uri) {
+        try {
+            contentResolver.openOutputStream(uri)?.use { outputStream ->
+                // FIX 1: Change 'write' to 'writeTo'
+                pdfDocumentToExport.writeTo(outputStream)
+            }
+            pdfDocumentToExport.close()
+            Toast.makeText(this, "Success! Report exported as PDF.", Toast.LENGTH_LONG).show()
+        } catch (e: Exception) {
+            Toast.makeText(this, "Error writing PDF: ${e.message}", Toast.LENGTH_LONG).show()
+            e.printStackTrace()
+        }
+    }}
