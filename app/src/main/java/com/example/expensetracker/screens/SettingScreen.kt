@@ -9,9 +9,14 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Policy
+import androidx.compose.material.icons.filled.NotificationsActive
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,10 +28,21 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.expensetracker.widget.ExpenseTextView
-import com.example.expensetracker.viewmodel.HomeViewModel // Assuming you might need this later
-import com.example.expensetracker.R // Import R for potential resources
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
+import com.example.expensetracker.utils.NotificationScheduler
 
-// Define routes needed for navigation from this screen
+
+
 object SettingRoutes {
     const val EXPORT_DATA = "export_data_screen"
     const val ABOUT_APP = "about_screen"
@@ -37,15 +53,36 @@ object SettingRoutes {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(navController: NavController) {
+    val context = LocalContext.current
+
+    var isReminderEnabled by remember { mutableStateOf(false) }
+
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                Toast.makeText(context, "Alerts permission granted!", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, "Alerts denied. Turn on in App Settings.", Toast.LENGTH_LONG).show()
+            }
+        }
+    )
+
+    val areNotificationsEnabled = remember {
+        {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        }
+    }
+
+
     Scaffold(
         topBar = {
             TopAppBar(
-                // 1. Manually apply status bar padding to position content below the status bar.
                 modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars),
-
-                // 2. CRITICAL FIX: Set windowInsets to zero to prevent double padding.
-                windowInsets = WindowInsets(0.dp), // <-- ADD THIS LINE
-
+                windowInsets = WindowInsets(0.dp),
                 title = { ExpenseTextView(text = "Settings") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
@@ -64,7 +101,6 @@ fun SettingsScreen(navController: NavController) {
                 .fillMaxSize()
         ) {
             item {
-                // --- CATEGORY 1: Data Management ---
                 SettingsHeader(title = "Data & Security")
                 SettingItem(
                     icon = Icons.AutoMirrored.Filled.ExitToApp,
@@ -74,7 +110,44 @@ fun SettingsScreen(navController: NavController) {
                 )
                 Divider(modifier = Modifier.padding(horizontal = 16.dp))
 
-                // --- CATEGORY 2: Information & Legal ---
+                SettingsHeader(title = "Alerts")
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !areNotificationsEnabled()) {
+                    SettingItem(
+                        icon = Icons.Filled.NotificationsActive,
+                        title = "Enable Notifications",
+                        description = "Grant permission for spending alerts.",
+                        onClick = {
+                            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        }
+                    )
+                    Divider(modifier = Modifier.padding(horizontal = 16.dp))
+                }
+
+                SettingToggleItem(
+                    icon = Icons.Filled.Schedule,
+                    title = "Daily Expense Reminder",
+                    description = "Get an alert every evening to log transactions.",
+                    checked = isReminderEnabled,
+                    onCheckedChange = { isChecked ->
+                        if (isChecked) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !areNotificationsEnabled()) {
+                                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            }
+
+                            if (areNotificationsEnabled() || Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                                NotificationScheduler.scheduleDailyReminder(context)
+                                isReminderEnabled = true
+                            }
+                        } else {
+                            NotificationScheduler.cancelReminder(context)
+                            isReminderEnabled = false
+                        }
+                    }
+                )
+
+                Divider(modifier = Modifier.padding(horizontal = 16.dp))
+
                 SettingsHeader(title = "Information")
                 SettingItem(
                     icon = Icons.Filled.Info,
@@ -90,9 +163,6 @@ fun SettingsScreen(navController: NavController) {
                 )
                 Divider(modifier = Modifier.padding(horizontal = 16.dp))
 
-                // --- CATEGORY 3: Other Settings (Placeholder) ---
-                SettingsHeader(title = "Appearance")
-                // TODO: Add Theme/Dark Mode toggle here later
             }
         }
     }
@@ -137,6 +207,40 @@ fun SettingItem(
         Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Go", tint = Color.Gray)
     }
 }
+
+@Composable
+fun SettingToggleItem(
+    icon: ImageVector,
+    title: String,
+    description: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onCheckedChange(!checked) }
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = title,
+            tint = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(Modifier.width(16.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            ExpenseTextView(text = title, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+            ExpenseTextView(text = description, fontSize = 12.sp, color = Color.Gray)
+        }
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange
+        )
+    }
+}
+
 
 @Preview(showBackground = true)
 @Composable

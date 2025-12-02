@@ -9,38 +9,46 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.expensetracker.screens.NavHostScreen
 import com.example.expensetracker.ui.theme.ExpenseTrackerTheme
 import java.io.OutputStreamWriter
-import android.graphics.pdf.PdfDocument // Import for PDF handling
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Surface
-import com.example.expensetracker.R // Ensure R is imported
+import com.example.expensetracker.utils.NotificationHelper
+import android.graphics.pdf.PdfDocument
+import android.os.Build
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
+import android.Manifest
 
-// --- 1. Global Variables for Communication ---
-// These must be defined outside the class scope.
+
 lateinit var exportLauncher: ActivityResultLauncher<Intent>
-// Global holders for the two distinct output formats
 lateinit var csvDataToExport: String
-lateinit var pdfDocumentToExport: PdfDocument // Holder for the generated PDF object
-lateinit var currentExportFormat: String // "csv" or "pdf" (NEW)
-
+lateinit var pdfDocumentToExport: PdfDocument
+lateinit var currentExportFormat: String
 
 class MainActivity : ComponentActivity() {
+
+    private lateinit var notificationPermissionLauncher: ActivityResultLauncher<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
 
-        // --- 2. Initialize the ActivityResultLauncher ---
+        notificationPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                Toast.makeText(this, "Notification permission granted.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         exportLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
-            // --- 4. Handle the result (the URI) ---
             if (result.resultCode == RESULT_OK) {
                 result.data?.data?.let { uri ->
                     if (::currentExportFormat.isInitialized) {
-                        // Call the appropriate writer based on the type requested by the Composable
                         when (currentExportFormat) {
                             "csv" -> writeCsvToUri(uri)
                             "pdf" -> writePdfToUri(uri)
@@ -56,6 +64,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+
+        NotificationHelper.createNotificationChannel(this)
+
         splashScreen.setKeepOnScreenCondition { false }
 
         setContent {
@@ -67,9 +83,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    /**
-     * Writes the globally held CSV data to the file URI chosen by the user.
-     */
     private fun writeCsvToUri(uri: Uri) {
         try {
             contentResolver.openOutputStream(uri)?.use { outputStream ->
@@ -84,13 +97,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    /**
-     * Writes the globally held PDF document to the file URI chosen by the user.
-     */
     private fun writePdfToUri(uri: Uri) {
         try {
             contentResolver.openOutputStream(uri)?.use { outputStream ->
-                // FIX 1: Change 'write' to 'writeTo'
                 pdfDocumentToExport.writeTo(outputStream)
             }
             pdfDocumentToExport.close()
@@ -99,4 +108,5 @@ class MainActivity : ComponentActivity() {
             Toast.makeText(this, "Error writing PDF: ${e.message}", Toast.LENGTH_LONG).show()
             e.printStackTrace()
         }
-    }}
+    }
+}
