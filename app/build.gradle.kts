@@ -78,5 +78,5 @@ dependencies {
     implementation("com.github.tehras:charts:0.2.4-alpha")
 
     implementation("androidx.core:core-splashscreen:1.0.1")
-
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 }
