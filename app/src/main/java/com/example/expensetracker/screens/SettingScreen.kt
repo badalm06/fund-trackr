@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,8 +41,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import com.example.expensetracker.utils.NotificationScheduler
-
-
+import com.example.expensetracker.data.SettingsDataStore
+import androidx.compose.runtime.collectAsState
+import kotlinx.coroutines.launch
 
 object SettingRoutes {
     const val EXPORT_DATA = "export_data_screen"
@@ -54,8 +56,10 @@ object SettingRoutes {
 @Composable
 fun SettingsScreen(navController: NavController) {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
-    var isReminderEnabled by remember { mutableStateOf(false) }
+    val settingsDataStore = remember { SettingsDataStore(context) }
+    val isReminderEnabled by settingsDataStore.reminderEnabledFlow.collectAsState(initial = false)
 
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
@@ -137,11 +141,15 @@ fun SettingsScreen(navController: NavController) {
 
                             if (areNotificationsEnabled() || Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
                                 NotificationScheduler.scheduleDailyReminder(context)
-                                isReminderEnabled = true
+                                coroutineScope.launch {
+                                    settingsDataStore.saveReminderEnabled(isChecked)
+                                }
                             }
                         } else {
                             NotificationScheduler.cancelReminder(context)
-                            isReminderEnabled = false
+                            coroutineScope.launch {
+                                settingsDataStore.saveReminderEnabled(isChecked)
+                            }
                         }
                     }
                 )
@@ -162,7 +170,6 @@ fun SettingsScreen(navController: NavController) {
                     onClick = { navController.navigate(SettingRoutes.PRIVACY_POLICY) }
                 )
                 Divider(modifier = Modifier.padding(horizontal = 16.dp))
-
             }
         }
     }
