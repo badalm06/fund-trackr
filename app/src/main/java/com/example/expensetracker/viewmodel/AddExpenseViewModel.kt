@@ -57,11 +57,29 @@ class AddExpenseViewModel(private val dao: ExpenseDao, private val context: Cont
             )
         }
 
-        if (totalExpense > 10000 && totalExpense < 500000) {
+        if (totalExpense > 10000 && totalExpense <= 50000) {
             NotificationHelper.showNotification(
                 context,
                 "💸 Spending Alert",
                 "You've crossed ₹10000 in expenses this month!",
+                2
+            )
+        }
+
+        if (totalExpense > 50000 && totalExpense <= 100000) {
+            NotificationHelper.showNotification(
+                context,
+                "💸 Spending Alert",
+                "You've crossed ₹50000 in expenses this month!",
+                2
+            )
+        }
+
+        if (totalExpense > 100000 && totalExpense <= 500000) {
+            NotificationHelper.showNotification(
+                context,
+                "💸 Spending Alert",
+                "You've crossed ₹100000 in expenses this month!",
                 2
             )
         }
