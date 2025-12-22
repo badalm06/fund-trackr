@@ -26,26 +26,25 @@ import androidx.compose.material3.TopAppBarDefaults
 @Composable
 fun PrivacyPolicyScreen(navController: NavController) {
 
-    // --- Define Clean Policy Content (Structured for Compose) ---
     val corePrinciple = "This policy outlines how FundTrackr handles your data. Our core principle is complete user privacy and local data control.\n\n" +
             "FundTrackr is designed exclusively as a private, on-device budget management tool. We operate without any external data collection mechanisms.\n"
 
     val dataCollected = "\nWe collect NO personal identifying information (like email, name, or location) and NO financial data is transmitted externally.\n"
 
-    val dataStorageBody = "\nAll your expense and income data (transaction details, amounts, categories, and dates) is stored Locally on your device. We do not use third-party analytics or server-side services that collect personal data. Your data is yours alone.\n"
+    val dataStorageBody = "\nAll your expense and income data (transaction details, amounts, categories, and dates) is stored locally on your device. We do not use third-party analytics or server-side services that collect personal data. Your data is yours alone.\n"
+
+    val notificationBody = "\nFundTrackr requests permission to send notifications. These are used solely to provide you with real-time budget alerts (low balance, large transactions) and daily reminders to help you maintain consistent tracking habits. These notifications are generated locally on your device and do not involve any external tracking.\n"
 
     val dataSharingBody = "\nWe do not sell, rent, or share your locally stored data with any third-party entities, advertisers, or affiliates.\n"
 
     val dataRetentionBody = "\nData is retained on your device until you manually clear the app data, delete the application from your device, or choose to use the 'Export Data' feature.\n"
 
     val policyConclusion = "\nThis policy may be updated occasionally. We encourage users to review this page periodically for any changes. Continued use of FundTrackr constitutes your acceptance of the updated terms. Last Updated: December 2025.\n"
-    // ----------------------------------------------------
 
 
     Scaffold(
         topBar = {
             TopAppBar(
-                // Applying the window inset fix for the gap:
                 modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
@@ -64,10 +63,9 @@ fun PrivacyPolicyScreen(navController: NavController) {
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState()) // Ensures the whole content is scrollable
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
-            // --- TITLE ---
             ExpenseTextView(
                 text = "FundTrackr Privacy Commitment",
                 fontSize = 20.sp,
@@ -75,13 +73,11 @@ fun PrivacyPolicyScreen(navController: NavController) {
             )
             Spacer(Modifier.height(16.dp))
 
-            // --- CORE PRINCIPLE / INTRO ---
             ExpenseTextView(
                 text = corePrinciple,
                 fontSize = 14.sp
             )
 
-            // --- 1. DATA COLLECTED ---
             ExpenseTextView(
                 text = "1. Data Collected:",
                 fontSize = 16.sp,
@@ -93,7 +89,6 @@ fun PrivacyPolicyScreen(navController: NavController) {
                 fontSize = 14.sp
             )
 
-            // --- 2. DATA STORAGE & SECURITY ---
             ExpenseTextView(
                 text = "2. Data Storage & Security:",
                 fontSize = 16.sp,
@@ -105,21 +100,31 @@ fun PrivacyPolicyScreen(navController: NavController) {
                 fontSize = 14.sp
             )
 
-            // --- 3. DATA SHARING ---
+            // --- 3. NOTIFICATIONS SECTION ---
             ExpenseTextView(
-                text = "3. Data Sharing:",
+                text = "3. Notifications & Alerts:",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(top = 8.dp)
             )
             ExpenseTextView(
-                text = dataSharingBody, // <-- NEW LINE ADDED HERE
+                text = notificationBody,
                 fontSize = 14.sp
             )
 
-            // --- 4. DATA RETENTION ---
             ExpenseTextView(
-                text = "4. Data Retention:",
+                text = "4. Data Sharing:",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            ExpenseTextView(
+                text = dataSharingBody,
+                fontSize = 14.sp
+            )
+
+            ExpenseTextView(
+                text = "5. Data Retention:",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(top = 8.dp)
@@ -129,10 +134,9 @@ fun PrivacyPolicyScreen(navController: NavController) {
                 fontSize = 14.sp
             )
 
-            // --- 5. POLICY UPDATES ---
             Spacer(Modifier.height(16.dp))
             ExpenseTextView(
-                text = "5. Policy Updates:",
+                text = "6. Policy Updates:",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -143,7 +147,6 @@ fun PrivacyPolicyScreen(navController: NavController) {
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable
