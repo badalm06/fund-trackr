@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.expensetracker"
+    namespace = "com.badal.fundtrackr"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.expensetracker"
+        applicationId = "com.badal.fundtrackr"
         minSdk = 29
         targetSdk = 36
         versionCode = 1
