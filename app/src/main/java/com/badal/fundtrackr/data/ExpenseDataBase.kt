@@ -30,15 +30,15 @@ abstract class ExpenseDataBase: RoomDatabase() {
 //                    InitBasicData(context)
                 }
 
-                fun InitBasicData(context: Context) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val dao = getDatabase(context).expenseDao()
-                        dao.insertExpense(ExpenseEntity(1, "Salary", 5000.40, System.currentTimeMillis(),"Salary", "Income"))
-                        dao.insertExpense(ExpenseEntity(2, "Paypal", 2000.60, System.currentTimeMillis(),"Paypal", "Income"))
-                        dao.insertExpense(ExpenseEntity(3, "NetFlix", 400.50, System.currentTimeMillis(),"NetFlix", "Expense"))
-                        dao.insertExpense(ExpenseEntity(4, "Starbucks", 100.90, System.currentTimeMillis(),"Starbucks", "Expense"))
-                    }
-                }
+//                fun InitBasicData(context: Context) {
+//                    CoroutineScope(Dispatchers.IO).launch {
+//                        val dao = getDatabase(context).expenseDao()
+//                        dao.insertExpense(ExpenseEntity(1, "Salary", 5000.40, System.currentTimeMillis(),"Salary", "Income"))
+//                        dao.insertExpense(ExpenseEntity(2, "Paypal", 2000.60, System.currentTimeMillis(),"Paypal", "Income"))
+//                        dao.insertExpense(ExpenseEntity(3, "NetFlix", 400.50, System.currentTimeMillis(),"NetFlix", "Expense"))
+//                        dao.insertExpense(ExpenseEntity(4, "Starbucks", 100.90, System.currentTimeMillis(),"Starbucks", "Expense"))
+//                    }
+//                }
 
             }).build()
 
