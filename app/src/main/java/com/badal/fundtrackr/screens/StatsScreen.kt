@@ -23,20 +23,16 @@ import kotlin.math.roundToInt
 import com.github.tehras.charts.piechart.PieChart
 import com.github.tehras.charts.piechart.PieChartData
 import com.github.tehras.charts.piechart.renderer.SimpleSliceDrawer
-// -------------------------------------------------
 
 @Composable
 fun StatsScreen(
     viewModel: HomeViewModel = viewModel(factory = HomeViewModelFactory(LocalContext.current))
 ) {
-    // Collect list of expenses from Flow
     val expensesList by viewModel.expenses.collectAsState(initial = emptyList())
 
-    // Tabs: 0 => Expense, 1 => Income
     var selectedTab by remember { mutableStateOf(0) }
     val tabs = listOf("Expenses", "Income")
 
-    // Filter list per tab
     val filtered = remember(expensesList, selectedTab) {
         if (selectedTab == 0) {
             expensesList.filter { it.type.equals("Expense", true) }
@@ -45,7 +41,6 @@ fun StatsScreen(
         }
     }
 
-    // Category wise aggregation
     val categoryStats = remember(filtered) {
         val grouped = filtered.groupBy { it.category.ifBlank { "Other" } }
         val total = grouped.values.sumOf { list -> list.sumOf { it.amount } }
@@ -60,7 +55,6 @@ fun StatsScreen(
         }.sortedByDescending { it.amount }
     }
 
-    // Totals / balance strings (already formatted inside ViewModel)
     val totalIncomeStr = viewModel.getTotalIncome(expensesList)
     val totalExpenseStr = viewModel.getTotalExpense(expensesList)
     val balanceStr = viewModel.getBalance(expensesList)
@@ -71,7 +65,6 @@ fun StatsScreen(
             .padding(top = 40.dp)
     ) {
 
-        // Top Summary Row
         SummaryRow(
             income = totalIncomeStr,
             expense = totalExpenseStr,
@@ -80,7 +73,6 @@ fun StatsScreen(
 
         Spacer(Modifier.height(12.dp))
 
-        // Tabs
         TabRow(
             selectedTabIndex = selectedTab,
             containerColor = Color.Transparent
@@ -105,12 +97,11 @@ fun StatsScreen(
 
         Spacer(Modifier.height(8.dp))
 
-        // Content
         if (categoryStats.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(bottom = 60.dp), // leave space for bottom bar if any
+                    .padding(bottom = 60.dp),
                 contentAlignment = Alignment.Center
             ) {
                 ExpenseTextView(
@@ -120,7 +111,6 @@ fun StatsScreen(
                 )
             }
         } else {
-            // Show Pie + List
             PieChartWithCategoryList(
                 stats = categoryStats,
                 modifier = Modifier.weight(1f)
@@ -162,7 +152,7 @@ private fun SummaryChip(label: String, value: String, color: Color) {
             color = Color.Gray
         )
         ExpenseTextView(
-            text = value, // already contains $ from ViewModel
+            text = value,
             fontSize = 15.sp,
             fontWeight = FontWeight.SemiBold,
             color = color
@@ -175,7 +165,6 @@ private fun PieChartWithCategoryList(
     stats: List<CategoryStat>,
     modifier: Modifier = Modifier
 ) {
-    // Simple palette cycle
     val palette = listOf(
         Color(0xFFEF5350),
         Color(0xFFFFA726),
@@ -199,7 +188,7 @@ private fun PieChartWithCategoryList(
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
     ) {
-        // Pie Chart
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -219,7 +208,6 @@ private fun PieChartWithCategoryList(
 
         Spacer(Modifier.height(12.dp))
 
-        // Category List
         LazyColumn(
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -229,7 +217,7 @@ private fun PieChartWithCategoryList(
                     color = slices[stats.indexOf(stat)].color
                 )
             }
-            item { Spacer(Modifier.height(60.dp)) } // bottom padding space
+            item { Spacer(Modifier.height(60.dp)) }
         }
     }
 }
@@ -269,7 +257,6 @@ private fun CategoryRow(stat: CategoryStat, color: Color) {
     }
 }
 
-// Simple money formatter (without duplicating ViewModel logic)
 private fun formatMoneyForRow(value: Double): String {
     return if (value % 1.0 == 0.0) {
         "₹ ${"%,.0f".format(value)}"
