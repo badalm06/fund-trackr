@@ -1,4 +1,4 @@
-package com.badal.fundtrackr.screens // Your existing package
+package com.badal.fundtrackr.screens
 
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.runtime.Composable
@@ -20,12 +20,11 @@ import com.badal.fundtrackr.viewmodel.HomeViewModel // Your HomeViewModel
 import com.badal.fundtrackr.viewmodel.HomeViewModelFactory // Your HomeViewModelFactory
 
 
-// Optional: centralize extra route(s)
 object ExtraRoutes {
     const val ADD_EXPENSE = "addExpense"
-    const val ALL_TRANSACTIONS = "all_transactions_screen" // Define the route for AllTransactionsScreen
+    const val ALL_TRANSACTIONS = "all_transactions_screen"
 
-    const val SETTINGS_SCREEN = "settings_screen" // <-- NEW ROUTE
+    const val SETTINGS_SCREEN = "settings_screen"
 }
 
 @Composable
@@ -48,16 +47,16 @@ fun NavHostScreen() {
                 BottomBar(navController)
             }
         },
-        // --- FIX: Disable default Scaffold padding/insets to prevent Status Bar conflict ---
+
         contentWindowInsets = WindowInsets(0)
     ) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = BottomNavItem.Home.route,
-            // --- FIX: Apply ONLY the bottom padding to the NavHost ---
+
             modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
         ) {
-            // --- Bottom Navigation Routes ---
+
             composable(BottomNavItem.Home.route) {
                 HomeScreen(navController)
             }
@@ -65,7 +64,7 @@ fun NavHostScreen() {
                 StatsScreen()
             }
 
-            // --- Extra Routes (Accessed via Home/Add Button) ---
+
             composable(ExtraRoutes.ADD_EXPENSE) {
                 AddExpense(navController)
             }
