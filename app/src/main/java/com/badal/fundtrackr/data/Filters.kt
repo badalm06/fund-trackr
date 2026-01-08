@@ -25,7 +25,6 @@ fun CategoryFilterDropdown(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    // Ensure the shown value is something in the list (fallback = first item)
     val displayValue = when {
         categories.contains(selectedCategory) -> selectedCategory
         categories.isNotEmpty() -> categories.first()
@@ -39,7 +38,7 @@ fun CategoryFilterDropdown(
     ) {
         OutlinedTextField(
             value = displayValue,
-            onValueChange = {}, // read-only
+            onValueChange = {},
             readOnly = true,
             label = { Text("Category") },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },

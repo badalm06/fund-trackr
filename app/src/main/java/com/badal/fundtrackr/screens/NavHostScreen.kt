@@ -72,7 +72,6 @@ fun NavHostScreen() {
                 AllTransactionsScreen(navController, homeViewModel)
             }
 
-            // --- Settings Menu Routes ---
             composable(ExtraRoutes.SETTINGS_SCREEN) {
                 SettingsScreen(navController)
             }
@@ -86,7 +85,6 @@ fun NavHostScreen() {
                 ExportDataScreen(navController)
             }
 
-            // --- Detailed/Edit Routes ---
             composable("edit_expense/{id}") { backStackEntry ->
                 val id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: return@composable
                 EditExpenseScreen(
