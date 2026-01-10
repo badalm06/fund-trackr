@@ -39,9 +39,7 @@ import kotlin.collections.get
 
 object CategoryCatalog {
 
-    // Map of display name -> icon
     private val categoryIconMap: Map<String, ImageVector> = mapOf(
-        // Core
         "Clothing" to Icons.Default.Checkroom,
         "Education" to Icons.Default.School,
         "Entertainment" to Icons.Default.Movie,
@@ -63,20 +61,17 @@ object CategoryCatalog {
         "Utilities" to Icons.Default.Wifi,
         "Gifts & Donations" to Icons.Default.CardGiftcard,
 
-        // Fun / extra
         "Movies & Series" to Icons.Default.Tv,
         "Music & Concerts" to Icons.Default.MusicNote,
         "Sports & Outdoor Activities" to Icons.Default.Sports,
         "Pet Care" to Icons.Default.Pets,
         "Party & Events" to Icons.Default.Celebration,
 
-        // Brand-ish / legacy (map to closest)
         "Netflix" to Icons.Default.Subscriptions,
         "Starbucks" to Icons.Default.LocalCafe,
         "Upwork" to Icons.Default.Work,
         "Paypal" to Icons.Default.Payment,
 
-        // Income-y
         "Salary" to Icons.Default.Work,
         "Freelancing" to Icons.Default.Laptop,
         "Business" to Icons.Default.Business,
@@ -85,10 +80,8 @@ object CategoryCatalog {
         "Investments (Stocks, Mutual Funds)" to Icons.AutoMirrored.Filled.TrendingUp
     )
 
-    /** Sorted deduped list you can feed into dropdowns. */
     val allCategories: List<String> = categoryIconMap.keys.sorted()
 
-    /** Return icon for category (case-insensitive match, fallback generic). */
     fun iconFor(raw: String?): ImageVector {
         if (raw == null) return Icons.Default.Category
         // case-insensitive lookup

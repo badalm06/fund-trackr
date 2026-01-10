@@ -21,7 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Settings // Import Settings Icon
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -96,21 +96,19 @@ fun HomeScreen(navController: NavController) {
                     modifier = Modifier.align(Alignment.TopCenter)
                 )
 
-                // --- START: Settings Icon ---
                 IconButton(
                     onClick = { navController.navigate(ExtraRoutes.SETTINGS_SCREEN) },
                     modifier = Modifier
-                        .align(Alignment.TopEnd) // Align to the top right of the Box
-                        .padding(top = 4.dp) // Small adjustment down from the very top
+                        .align(Alignment.TopEnd)
+                        .padding(top = 4.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Settings,
                         contentDescription = "Settings",
-                        tint = Color.White, // Icon color
+                        tint = Color.White,
                         modifier = Modifier.size(24.dp)
                     )
                 }
-                // --- END: Settings Icon ---
 
                 Column {
                     Spacer(modifier = Modifier.height(44.dp))
@@ -158,8 +156,6 @@ fun HomeScreen(navController: NavController) {
         }
     }
 }
-// ... (The rest of your code: CardItem, RowCardItem, TranscationList, TransactionItem, GreetingText)
-// ... (These remain unchanged)
 
 @Composable
 fun CardItem(modifier: Modifier, expense: String, income: String, balance: String) {

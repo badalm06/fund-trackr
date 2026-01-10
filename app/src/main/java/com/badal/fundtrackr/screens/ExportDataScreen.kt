@@ -19,11 +19,9 @@ import com.badal.fundtrackr.viewmodel.HomeViewModel
 import com.badal.fundtrackr.viewmodel.HomeViewModelFactory
 import com.badal.fundtrackr.widget.ExpenseTextView
 import com.badal.fundtrackr.exportLauncher
-// --- IMPORTANT: Import all global variables for communication ---
 import com.badal.fundtrackr.csvDataToExport
 import com.badal.fundtrackr.pdfDocumentToExport
 import com.badal.fundtrackr.currentExportFormat
-// ---
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -38,17 +36,14 @@ fun ExportDataScreen(navController: NavController) {
         HomeViewModelFactory(context).create(HomeViewModel::class.java)
     }
 
-    // Collect the StateFlow as Compose State for reactive updates
     val expenses by viewModel.expenses.collectAsState(initial = emptyList())
 
-    // --- Local function to handle data preparation and intent launch ---
     fun triggerExport(format: String) {
         if (expenses.isEmpty()) {
             Toast.makeText(context, "No data to export.", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // Set the global format variable for MainActivity to read
         currentExportFormat = format
 
         val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
@@ -62,7 +57,7 @@ fun ExportDataScreen(navController: NavController) {
                 pdfDocumentToExport = viewModel.generatePdf(expenses)
                 Pair("application/pdf", "pdf")
             }
-            else -> return // Should not happen
+            else -> return
         }
 
         val fileName = "FundTrackr_Export_$timestamp.$fileExtension"
@@ -75,7 +70,6 @@ fun ExportDataScreen(navController: NavController) {
 
         exportLauncher.launch(intent)
     }
-    // --- End of trigger function ---
 
     Scaffold(
         topBar = {
@@ -111,7 +105,6 @@ fun ExportDataScreen(navController: NavController) {
             )
             Spacer(Modifier.height(32.dp))
 
-            // --- CSV BUTTON ---
             Button(
                 onClick = { triggerExport("csv") },
                 enabled = expenses.isNotEmpty(),
@@ -122,7 +115,6 @@ fun ExportDataScreen(navController: NavController) {
 
             Spacer(Modifier.height(12.dp))
 
-            // --- PDF BUTTON ---
             Button(
                 onClick = { triggerExport("pdf") },
                 enabled = expenses.isNotEmpty(),
@@ -142,7 +134,6 @@ fun ExportDataScreen(navController: NavController) {
     }
 }
 
-// --- Preview Composable ---
 @Preview(showBackground = true)
 @Composable
 fun PreviewExportDataScreen() {

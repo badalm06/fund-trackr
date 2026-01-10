@@ -63,7 +63,6 @@ fun EditExpenseScreen(
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.height(12.dp))
-            // Category Dropdown
             var expandedCat by remember { mutableStateOf(false) }
             ExposedDropdownMenuBox(expanded = expandedCat, onExpandedChange = { expandedCat = !expandedCat }) {
                 OutlinedTextField(
@@ -87,7 +86,6 @@ fun EditExpenseScreen(
                 }
             }
             Spacer(Modifier.height(12.dp))
-            // Type Dropdown
             var expandedType by remember { mutableStateOf(false) }
             ExposedDropdownMenuBox(expanded = expandedType, onExpandedChange = { expandedType = !expandedType }) {
                 OutlinedTextField(
