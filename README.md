@@ -43,8 +43,12 @@
 - 📊 **Transaction Summary (Coming Soon)**  
   Monthly summary for better budget insights.
 
-- 🔍 **Search & Filter Transactions (Planned)**  
-  Quick lookup by title or amount.
+- 🔍 **Search & Filter Transactions**  
+  Quick lookup by title, amount, or date.
+
+- 📈 **Export Data**  
+  Export your data in CSV/PDF form.
+  
 
 ---
 
