@@ -98,7 +98,6 @@ fun PrivacyPolicyScreen(navController: NavController) {
                 fontSize = 14.sp
             )
 
-            // --- 3. NOTIFICATIONS SECTION ---
             ExpenseTextView(
                 text = "3. Notifications & Alerts:",
                 fontSize = 16.sp,
