@@ -2,11 +2,6 @@
 
 **Fund Trackr** is a clean and beginner-friendly personal finance tracker app built using modern Android development tools like Jetpack Compose and Kotlin. With Fund Trackr, users can easily track their income and expenses, apply filters, view transaction history, and manage their financial habits — all in a beautifully designed UI.
 
-![Made with Kotlin](https://img.shields.io/badge/Made%20with-Kotlin-7F52FF.svg?style=for-the-badge&logo=kotlin)
-![Jetpack Compose](https://img.shields.io/badge/Jetpack-Compose-blue?style=for-the-badge&logo=android)
-![Room DB](https://img.shields.io/badge/Local-Storage-informational?style=for-the-badge&logo=sqlite)
-![Platform](https://img.shields.io/badge/Platform-Android-green?style=for-the-badge&logo=android)
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)
 
 
 
